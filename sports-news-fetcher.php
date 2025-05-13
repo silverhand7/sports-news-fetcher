@@ -313,10 +313,9 @@ function sports_news_fetcher_settings_page()
                                         <input type="hidden" name="import_entry" value="<?php echo esc_attr($entry->id); ?>">
                                         <?php submit_button('Import', 'primary', 'submit_import', false, ['style' => 'width: 100%;']); ?>
                                     </form>
-                                    <form method="post">
-                                        <input type="hidden" name="preview_entry" value="<?php echo esc_attr($entry->id); ?>">
-                                        <?php submit_button('Preview', 'secondary', 'submit_preview', false, ['style' => 'width: 100%;']); ?>
-                                    </form>
+
+                                    <a href="?page=sports-news-fetcher&preview_entry=<?php echo esc_attr($entry->id); ?>" class="button button-secondary" style="width: 100%; text-align: center; display: inline-block; text-decoration: none;">Preview</a>
+
                                     <form method="post" onsubmit="return confirm('Are you sure you want to delete this entry?');">
                                         <input type="hidden" name="delete_entry" value="<?php echo esc_attr($entry->id); ?>">
                                         <?php submit_button('Delete', 'delete', 'submit_delete', false, ['style' => 'width: 100%; background-color: #dc3545; color: white; border-color: #dc3545;']); ?>
@@ -471,11 +470,44 @@ function sports_news_fetcher_handle_actions()
             });
         }
     }
-
-    if (isset($_POST['preview_entry'])) {
-        $entry = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table_name WHERE id = %d", intval($_POST['preview_entry'])));
+    // Store preview content in a variable instead of echoing directly
+    $preview_content = '';
+    if (isset($_GET['preview_entry'])) {
+        $entry = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table_name WHERE id = %d", intval($_GET['preview_entry'])));
         if ($entry) {
-            echo '<div class="notice notice-info"><p><strong>Preview:</strong></p><p>'.esc_html($entry->content).'</p></div>';
+            $preview_content .= '<div class="notice notice-info">
+                <p><strong>Meta title:</strong> '.esc_html($entry->meta_title).'</p>
+                <p><strong>Meta description:</strong> '.esc_html($entry->meta_description).'</p>
+                <p><strong>Categories:</strong> ';
+
+                if (!empty($entry->categories_data)) {
+                    $categories = json_decode($entry->categories_data, true);
+                    $category_names = array_map(function($category) {
+                        return '<a href="/category/'.$category['slug'].'">'.$category['name'].'</a>';
+                    }, $categories);
+                    $preview_content .= implode(', ', $category_names);
+                } else {
+                    $preview_content .= 'None';
+                }
+
+            $preview_content .= '</p>';
+
+            if (!empty($entry->tags_data)) {
+                $preview_content .= '<p><strong>Tags:</strong> ';
+                $tags = json_decode($entry->tags_data, true);
+                $tag_names = array_map(function($tag) {
+                    return '<a href="/tag/'.$tag['slug'].'">'.$tag['name'].'</a>';
+                }, $tags);
+                $preview_content .= implode(', ', $tag_names);
+                $preview_content .= '</p>';
+            }
+            $preview_content .= '<h1>'.$entry->title.'</h1><p>'.wp_kses_post($entry->content).'</p>';
+            $preview_content .= '</div>';
+
+            // Add the preview content to be displayed later
+            add_action('admin_notices', function() use ($preview_content) {
+                echo $preview_content;
+            });
         }
     }
 }
