@@ -82,7 +82,10 @@ function sports_news_fetcher_fetch_data($start_date = '', $end_date = '')
     $last_page = 1;
 
     // Build API URL with date parameters if provided
-    $api_url_base = 'https://ai-articles-db8717205dd6.herokuapp.com/api/v1/posts';
+    $api_url_base = $_SERVER['HTTP_HOST'] === 'fabrizio-news.test'
+        ? 'http://ai-sports-news.test/api/v1/posts'
+        : 'https://ai-articles-db8717205dd6.herokuapp.com/api/v1/posts';
+
     $query_params = [];
 
     if (!empty($start_date)) {
@@ -275,7 +278,7 @@ function sports_news_fetcher_settings_page()
                 </div>
             </div>
 
-            <table class="wp-list-table widefat fixed striped posts">
+            <table class="wp-list-table widefat fixed striped posts" style="overflow: hidden;">
                 <thead>
                     <tr>
                         <th class="manage-column column-cb check-column"><input type="checkbox" id="cb-select-all"></th>
@@ -305,18 +308,18 @@ function sports_news_fetcher_settings_page()
                                         <img src="<?php echo esc_url($entry->media_url); ?>" alt="<?php echo esc_attr($entry->title); ?>" style="max-width: 100px; height: auto;">
                                     <?php } ?>
                                 </td>
-                                <td class="actions column-actions" style="min-width: 300px; width: auto;">
-                                    <form method="post" style="display:inline;">
+                                <td class="actions column-actions" style="display: flex; gap: 7px; flex-direction: column;">
+                                    <form method="post">
                                         <input type="hidden" name="import_entry" value="<?php echo esc_attr($entry->id); ?>">
-                                        <?php submit_button('Import', 'primary', 'submit_import', false); ?>
+                                        <?php submit_button('Import', 'primary', 'submit_import', false, ['style' => 'width: 100%;']); ?>
                                     </form>
-                                    <form method="post" style="display:inline;">
+                                    <form method="post">
                                         <input type="hidden" name="preview_entry" value="<?php echo esc_attr($entry->id); ?>">
-                                        <?php submit_button('Preview', 'secondary', 'submit_preview', false); ?>
+                                        <?php submit_button('Preview', 'secondary', 'submit_preview', false, ['style' => 'width: 100%;']); ?>
                                     </form>
-                                    <form method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this entry?');">
+                                    <form method="post" onsubmit="return confirm('Are you sure you want to delete this entry?');">
                                         <input type="hidden" name="delete_entry" value="<?php echo esc_attr($entry->id); ?>">
-                                        <?php submit_button('Delete', 'delete button-red', 'submit_delete', false, ['style' => 'background-color: #dc3545; color: white;']); ?>
+                                        <?php submit_button('Delete', 'delete', 'submit_delete', false, ['style' => 'width: 100%; background-color: #dc3545; color: white; border-color: #dc3545;']); ?>
                                     </form>
                                 </td>
                             </tr>
