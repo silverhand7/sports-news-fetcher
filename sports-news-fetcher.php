@@ -70,7 +70,7 @@ function sports_news_fetcher_deactivation()
 register_deactivation_hook(__FILE__, 'sports_news_fetcher_deactivation');
 
 // Function to fetch and insert data.
-function sports_news_fetcher_fetch_data()
+function sports_news_fetcher_fetch_data($start_date = '', $end_date = '')
 {
     global $wpdb;
     $api_key = get_option('sports_news_fetcher_api_key', '');
@@ -81,8 +81,23 @@ function sports_news_fetcher_fetch_data()
     $current_page = 1;
     $last_page = 1;
 
+    // Build API URL with date parameters if provided
+    $api_url_base = 'https://ai-articles-db8717205dd6.herokuapp.com/api/v1/posts';
+    $query_params = [];
+
+    if (!empty($start_date)) {
+        $query_params['start_date'] = $start_date;
+    }
+
+    if (!empty($end_date)) {
+        $query_params['end_date'] = $end_date;
+    }
+
     do {
-        $response = wp_remote_get('https://ai-articles-db8717205dd6.herokuapp.com/api/v1/posts?page='.$current_page, [
+        $query_params['page'] = $current_page;
+        $api_url = add_query_arg($query_params, $api_url_base);
+
+        $response = wp_remote_get($api_url, [
             'headers' => [
                 'Authorization' => 'Basic '.$api_key,
             ],
@@ -147,54 +162,77 @@ function sports_news_fetcher_menu()
     );
 }
 add_action('admin_menu', 'sports_news_fetcher_menu');
+?>
 
+<?php
 // Plugin settings page
 function sports_news_fetcher_settings_page()
-{
-    ?>
+{ ?>
     <div class="wrap">
         <?php
-        global $wpdb;
-    $table_name = $wpdb->prefix.'sports_news';
-    $per_page = 10;
-    $paged = isset($_GET['paged']) ? absint($_GET['paged']) : 1;
-    $offset = ($paged - 1) * $per_page;
+            global $wpdb;
+            $table_name = $wpdb->prefix.'sports_news';
+            $per_page = 10;
+            $paged = isset($_GET['paged']) ? absint($_GET['paged']) : 1;
+            $offset = ($paged - 1) * $per_page;
 
-    // Search functionality
-    $search_term = isset($_GET['sports_news_search']) ? sanitize_text_field($_GET['sports_news_search']) : '';
-    $where_clause = '';
+            // Search functionality
+            $search_term = isset($_GET['sports_news_search']) ? sanitize_text_field($_GET['sports_news_search']) : '';
+            $where_clause = '';
 
-    if (! empty($search_term)) {
-        $where_clause = $wpdb->prepare(
-            'WHERE title LIKE %s OR meta_title LIKE %s OR meta_description LIKE %s OR content LIKE %s',
-            '%'.$wpdb->esc_like($search_term).'%',
-            '%'.$wpdb->esc_like($search_term).'%',
-            '%'.$wpdb->esc_like($search_term).'%',
-            '%'.$wpdb->esc_like($search_term).'%'
-        );
-    }
+            if (! empty($search_term)) {
+                $where_clause = $wpdb->prepare(
+                    'WHERE title LIKE %s OR meta_title LIKE %s OR meta_description LIKE %s OR content LIKE %s',
+                    '%'.$wpdb->esc_like($search_term).'%',
+                    '%'.$wpdb->esc_like($search_term).'%',
+                    '%'.$wpdb->esc_like($search_term).'%',
+                    '%'.$wpdb->esc_like($search_term).'%'
+                );
+            }
 
-    $entries = $wpdb->get_results($wpdb->prepare(
-        "SELECT * FROM $table_name $where_clause ORDER BY created_at DESC LIMIT %d OFFSET %d",
-        $per_page,
-        $offset
-    ));
+            $entries = $wpdb->get_results($wpdb->prepare(
+                "SELECT * FROM $table_name $where_clause ORDER BY created_at DESC LIMIT %d OFFSET %d",
+                $per_page,
+                $offset
+            ));
 
-    $total_entries = $wpdb->get_var("SELECT COUNT(*) FROM $table_name $where_clause");
-    $total_pages = ceil($total_entries / $per_page);
-    ?>
+            $total_entries = $wpdb->get_var("SELECT COUNT(*) FROM $table_name $where_clause");
+            $total_pages = ceil($total_entries / $per_page);
+        ?>
         <h1>Sports News Settings</h1>
         <form method="post" action="options.php">
             <?php
-        settings_fields('sports_news_fetcher_settings_group');
-    do_settings_sections('sports_news_fetcher_settings_page');
-    submit_button();
-    ?>
+                settings_fields('sports_news_fetcher_settings_group');
+                do_settings_sections('sports_news_fetcher_settings_page');
+                submit_button();
+            ?>
         </form>
+
         <form method="post" action="">
+            <?php
+                $start_date = date('Y-m-d');
+                $end_date = date('Y-m-d');
+            ?>
             <input type="hidden" name="sports_news_fetcher_manual_fetch" value="1">
+            <table class="form-table">
+                <tr valign="top">
+                    <th scope="row">Start Date</th>
+                    <td>
+                        <input type="date" name="sports_news_start_date" class="regular-text" value="<?php echo esc_attr($start_date); ?>">
+                        <p class="description">Fetch news from this date</p>
+                    </td>
+                </tr>
+                <tr valign="top">
+                    <th scope="row">End Date</th>
+                    <td>
+                        <input type="date" name="sports_news_end_date" class="regular-text" value="<?php echo esc_attr($end_date); ?>">
+                        <p class="description">Fetch news until this date</p>
+                    </td>
+                </tr>
+            </table>
             <?php submit_button('Fetch Data Now', 'primary', 'submit_manual_fetch'); ?>
         </form>
+
         <h2>Fetched Sports News</h2>
         <hr class="wp-header-end">
 
@@ -214,23 +252,25 @@ function sports_news_fetcher_settings_page()
         <!-- Bulk import form -->
         <form method="post" action="" id="bulk-action-form">
             <?php
-    // Add the bulk actions dropdown
-    $actions = [
-        '' => 'Bulk Actions',
-        'import' => 'Import Selected',
-        'delete' => 'Delete Selected',
-    ];
-    ?>
+                // Add the bulk actions dropdown
+                $actions = [
+                    '' => 'Bulk Actions',
+                    'import' => 'Import Selected',
+                    'delete' => 'Delete Selected',
+                ];
+            ?>
+
             <div class="tablenav top">
                 <div class="alignleft actions bulkactions">
                     <label for="bulk-action-selector-top" class="screen-reader-text">Select bulk action</label>
                     <select name="bulk_action" id="bulk-action-selector-top">
                         <?php
-                foreach ($actions as $value => $label) {
-                    echo '<option value="'.esc_attr($value).'">'.esc_html($label).'</option>';
-                }
-    ?>
+                            foreach ($actions as $value => $label) {
+                                echo '<option value="'.esc_attr($value).'">'.esc_html($label).'</option>';
+                            }
+                        ?>
                     </select>
+
                     <?php submit_button('Apply', 'action', 'do_bulk_action', false); ?>
                 </div>
             </div>
@@ -251,7 +291,7 @@ function sports_news_fetcher_settings_page()
                     <?php if (! empty($entries)) { ?>
                         <?php foreach ($entries as $entry) { ?>
                             <tr>
-                                <td class="check-column">
+                                <td class="check-column" style="padding: 10px;">
                                     <?php if (empty($entry->added_to_post_at)) { ?>
                                         <input type="checkbox" name="entry_ids[]" class="check-item" value="<?php echo esc_attr($entry->id); ?>">
                                     <?php } ?>
@@ -304,76 +344,77 @@ function sports_news_fetcher_settings_page()
         <div class="tablenav bottom">
             <div class="tablenav-pages">
                 <?php
-                $pagination_args = [
-                    'base' => add_query_arg('paged', '%#%'),
-                    'format' => '',
-                    'prev_text' => __('&laquo; Previous'),
-                    'next_text' => __('Next &raquo;'),
-                    'total' => $total_pages,
-                    'current' => $paged,
-                ];
+                    $pagination_args = [
+                        'base' => add_query_arg('paged', '%#%'),
+                        'format' => '',
+                        'prev_text' => __('&laquo; Previous'),
+                        'next_text' => __('Next &raquo;'),
+                        'total' => $total_pages,
+                        'current' => $paged,
+                    ];
 
-    // Preserve search term in pagination
-    if (! empty($search_term)) {
-        $pagination_args['add_args'] = ['sports_news_search' => $search_term];
-    }
+                    // Preserve search term in pagination
+                    if (! empty($search_term)) {
+                        $pagination_args['add_args'] = ['sports_news_search' => $search_term];
+                    }
 
-    echo paginate_links($pagination_args);
-    ?>
+                    echo paginate_links($pagination_args);
+                ?>
             </div>
         </div>
     </div>
 
     <script>
-    jQuery(document).ready(function($) {
-        // Select all checkboxes
-        $('#cb-select-all, #cb-select-all-bottom').on('click', function() {
-            $('.check-item').prop('checked', $(this).prop('checked'));
-        });
+        jQuery(document).ready(function($) {
+            // Select all checkboxes
+            $('#cb-select-all, #cb-select-all-bottom').on('click', function() {
+                $('.check-item').prop('checked', $(this).prop('checked'));
+            });
 
-        // If all checkboxes are selected, check the "select all" checkbox
-        $('.check-item').on('click', function() {
-            if ($('.check-item:checked').length === $('.check-item').length) {
-                $('#cb-select-all, #cb-select-all-bottom').prop('checked', true);
-            } else {
-                $('#cb-select-all, #cb-select-all-bottom').prop('checked', false);
-            }
-        });
+            // If all checkboxes are selected, check the "select all" checkbox
+            $('.check-item').on('click', function() {
+                if ($('.check-item:checked').length === $('.check-item').length) {
+                    $('#cb-select-all, #cb-select-all-bottom').prop('checked', true);
+                } else {
+                    $('#cb-select-all, #cb-select-all-bottom').prop('checked', false);
+                }
+            });
 
-        // Submit form confirmation for bulk actions
-        $('#bulk-action-form').on('submit', function(e) {
-            var action = $('#bulk-action-selector-top').val();
+            // Submit form confirmation for bulk actions
+            $('#bulk-action-form').on('submit', function(e) {
+                var action = $('#bulk-action-selector-top').val();
 
-            if (action === 'delete') {
-                var checked = $('.check-item:checked').length;
-                if (checked === 0) {
-                    alert('Please select at least one item to delete.');
+                if (action === 'delete') {
+                    var checked = $('.check-item:checked').length;
+                    if (checked === 0) {
+                        alert('Please select at least one item to delete.');
+                        e.preventDefault();
+                        return false;
+                    }
+
+                    if (!confirm('Are you sure you want to delete ' + checked + ' selected items?')) {
+                        e.preventDefault();
+                        return false;
+                    }
+                } else if (action === 'import') {
+                    var checked = $('.check-item:checked').length;
+                    if (checked === 0) {
+                        alert('Please select at least one item to import.');
+                        e.preventDefault();
+                        return false;
+                    }
+                } else if (action === '') {
+                    alert('Please select an action.');
                     e.preventDefault();
                     return false;
                 }
-
-                if (!confirm('Are you sure you want to delete ' + checked + ' selected items?')) {
-                    e.preventDefault();
-                    return false;
-                }
-            } else if (action === 'import') {
-                var checked = $('.check-item:checked').length;
-                if (checked === 0) {
-                    alert('Please select at least one item to import.');
-                    e.preventDefault();
-                    return false;
-                }
-            } else if (action === '') {
-                alert('Please select an action.');
-                e.preventDefault();
-                return false;
-            }
+            });
         });
-    });
     </script>
-    <?php
-}
 
+<?php } ?>
+
+<?php
 // Handle delete and import actions
 function sports_news_fetcher_handle_actions()
 {
@@ -565,7 +606,11 @@ function sports_news_fetcher_import_entry($id)
 function sports_news_fetcher_manual_fetch()
 {
     if (isset($_POST['sports_news_fetcher_manual_fetch']) && current_user_can('manage_options')) {
-        sports_news_fetcher_fetch_data();
+        $start_date = isset($_POST['sports_news_start_date']) ? sanitize_text_field($_POST['sports_news_start_date']) : '';
+        $end_date = isset($_POST['sports_news_end_date']) ? sanitize_text_field($_POST['sports_news_end_date']) : '';
+
+        sports_news_fetcher_fetch_data($start_date, $end_date);
+
         add_action('admin_notices', function () {
             echo '<div class="notice notice-success"><p>Data fetched successfully!</p></div>';
         });
