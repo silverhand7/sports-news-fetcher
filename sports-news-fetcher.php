@@ -78,6 +78,14 @@ function sports_news_fetcher_fetch_data($start_date = '', $end_date = '')
         return;
     }
 
+    if (empty($start_date)) {
+        $start_date = date('Y-m-d');
+    }
+
+    if (empty($end_date)) {
+        $end_date = date('Y-m-d');
+    }
+
     $current_page = 1;
     $last_page = 1;
 
