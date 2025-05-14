@@ -316,7 +316,7 @@ function sports_news_fetcher_settings_page()
                                         <?php submit_button('Import', 'primary', 'submit_import', false, ['style' => 'width: 100%;']); ?>
                                     </form>
 
-                                    <a href="?page=sports-news-fetcher&preview_entry=<?php echo esc_attr($entry->id); ?>" class="button button-secondary" style="width: 100%; text-align: center; display: inline-block; text-decoration: none;">Preview</a>
+                                    <a href="?page=sports-news-fetcher&preview_entry=<?php echo esc_attr($entry->id); ?>" class="button" style="width: 100%; text-align: center; display: inline-block; text-decoration: none;">Preview</a>
 
                                     <form method="post" onsubmit="return confirm('Are you sure you want to delete this entry?');">
                                         <input type="hidden" name="delete_entry" value="<?php echo esc_attr($entry->id); ?>">
