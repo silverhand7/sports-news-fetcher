@@ -78,6 +78,9 @@ function sports_news_fetcher_fetch_data($start_date = '', $end_date = '')
         return;
     }
 
+    $current_page = 1;
+    $last_page = 1;
+
     if (empty($start_date)) {
         $start_date = date('Y-m-d');
     }
@@ -86,9 +89,6 @@ function sports_news_fetcher_fetch_data($start_date = '', $end_date = '')
         $end_date = date('Y-m-d');
     }
 
-    $current_page = 1;
-    $last_page = 1;
-
     // Build API URL with date parameters if provided
     $api_url_base = $_SERVER['HTTP_HOST'] === 'fabrizio-news.test'
         ? 'http://ai-sports-news.test/api/v1/posts'
@@ -96,13 +96,9 @@ function sports_news_fetcher_fetch_data($start_date = '', $end_date = '')
 
     $query_params = [];
 
-    if (!empty($start_date)) {
-        $query_params['start_date'] = $start_date;
-    }
+    $query_params['start_date'] = $start_date;
 
-    if (!empty($end_date)) {
-        $query_params['end_date'] = $end_date;
-    }
+    $query_params['end_date'] = $end_date;
 
     do {
         $query_params['page'] = $current_page;
@@ -173,9 +169,7 @@ function sports_news_fetcher_menu()
     );
 }
 add_action('admin_menu', 'sports_news_fetcher_menu');
-?>
 
-<?php
 // Plugin settings page
 function sports_news_fetcher_settings_page()
 { ?>
@@ -322,7 +316,7 @@ function sports_news_fetcher_settings_page()
                                         <?php submit_button('Import', 'primary', 'submit_import', false, ['style' => 'width: 100%;']); ?>
                                     </form>
 
-                                    <a href="?page=sports-news-fetcher&preview_entry=<?php echo esc_attr($entry->id); ?>" class="button" style="width: 100%; text-align: center; display: inline-block; text-decoration: none;">Preview</a>
+                                    <a href="?page=sports-news-fetcher&preview_entry=<?php echo esc_attr($entry->id); ?>" class="button button-secondary" style="width: 100%; text-align: center; display: inline-block; text-decoration: none;">Preview</a>
 
                                     <form method="post" onsubmit="return confirm('Are you sure you want to delete this entry?');">
                                         <input type="hidden" name="delete_entry" value="<?php echo esc_attr($entry->id); ?>">
@@ -421,10 +415,11 @@ function sports_news_fetcher_settings_page()
             });
         });
     </script>
-
-<?php } ?>
-
 <?php
+
+}
+
+
 // Handle delete and import actions
 function sports_news_fetcher_handle_actions()
 {
