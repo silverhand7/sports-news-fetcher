@@ -100,7 +100,8 @@ class API {
                             'category_url' => $tag['category_url'] ?? null,
                             'tag_url' => $tag['tag_url'] ?? null,
                             'name' => $tag['name'] ?? null,
-                            'slug' => $tag['slug'] ?? null
+                            'slug' => $tag['slug'] ?? null,
+                            'description' => $tag['description'] ?? null
                         ];
                     }
                 }
