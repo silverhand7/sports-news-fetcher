@@ -36,7 +36,7 @@ $actions = [
                 <th class="manage-column column-meta-description">Meta Description</th>
                 <th class="manage-column column-added-to-post-at" style="width: 80px;">Has Post</th>
                 <th class="manage-column column-media-url">Image</th>
-                <th class="manage-column column-actions" style="width: 100px;">Actions</th>
+                <th class="manage-column column-actions">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -65,7 +65,7 @@ $actions = [
                         </td>
                         <td class="actions column-actions">
                             <button type="button" class="button button-primary" onclick="importEntry(<?php echo esc_attr($entry->id); ?>, '<?php echo esc_js($entry->title); ?>')">Import</button>
-                            <a href="?page=sports-news-fetcher&preview_entry=<?php echo esc_attr($entry->id); ?>" class="button">Preview</a>
+                            <a href="?page=sports-news-fetcher&preview_entry=<?php echo esc_attr($entry->id); ?>" class="button" style="text-align: center;">Preview</a>
                             <button type="button" class="button delete" onclick="deleteEntry(<?php echo esc_attr($entry->id); ?>, '<?php echo esc_js($entry->title); ?>')">Delete</button>
                         </td>
                     </tr>
