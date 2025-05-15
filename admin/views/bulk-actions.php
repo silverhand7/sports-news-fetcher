@@ -25,7 +25,7 @@ $actions = [
         </div>
     </div>
 
-    <table class="wp-list-table widefat fixed striped posts" style="overflow: hidden;">
+    <table class="wp-list-table widefat striped posts" style="overflow: hidden;">
         <thead>
             <tr>
                 <th class="manage-column column-cb" style="width: 25px; padding: 2px;">
@@ -36,7 +36,7 @@ $actions = [
                 <th class="manage-column column-meta-description">Meta Description</th>
                 <th class="manage-column column-added-to-post-at" style="width: 80px;">Has Post</th>
                 <th class="manage-column column-media-url">Image</th>
-                <th class="manage-column column-actions">Actions</th>
+                <th class="manage-column column-actions" style="width: 100px;">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -63,7 +63,7 @@ $actions = [
                                 <img src="<?php echo esc_url($entry->media_url); ?>" alt="<?php echo esc_attr($entry->title); ?>" style="max-width: 100px; height: auto;">
                             <?php } ?>
                         </td>
-                        <td class="actions column-actions">
+                        <td class="actions column-actions" style="display: flex; gap: 7px; flex-direction: column; width: 100px;">
                             <button type="button" class="button button-primary" onclick="importEntry(<?php echo esc_attr($entry->id); ?>, '<?php echo esc_js($entry->title); ?>')">Import</button>
                             <a href="?page=sports-news-fetcher&preview_entry=<?php echo esc_attr($entry->id); ?>" class="button" style="text-align: center;">Preview</a>
                             <button type="button" class="button delete" onclick="deleteEntry(<?php echo esc_attr($entry->id); ?>, '<?php echo esc_js($entry->title); ?>')">Delete</button>
