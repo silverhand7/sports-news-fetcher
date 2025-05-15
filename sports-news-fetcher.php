@@ -287,7 +287,7 @@ function sports_news_fetcher_settings_page()
                         <th class="manage-column column-title">Title</th>
                         <th class="manage-column column-meta-title">Meta Title</th>
                         <th class="manage-column column-meta-description">Meta Description</th>
-                        <th class="manage-column column-added-to-post-at">Added to Post at</th>
+                        <th class="manage-column column-added-to-post-at" style="width: 80px;">Has Post</th>
                         <th class="manage-column column-media-url">Image</th>
                         <th class="manage-column column-actions">Actions</th>
                     </tr>
@@ -304,24 +304,22 @@ function sports_news_fetcher_settings_page()
                                 <td class="title column-title"> <?php echo esc_html($entry->title); ?> </td>
                                 <td class="meta-title column-meta-title"> <?php echo esc_html($entry->meta_title); ?> </td>
                                 <td class="meta-description column-meta-description"> <?php echo esc_html($entry->meta_description); ?> </td>
-                                <td class="added-to-post-at column-added-to-post-at"> <?php echo esc_html($entry->added_to_post_at); ?> </td>
+                                <td class="added-to-post-at column-added-to-post-at" style="padding-left: 27px">
+                                    <?php if (! empty($entry->added_to_post_at)) { ?>
+                                        <span class="dashicons dashicons-yes" style="color: green;" title="Added to post on <?php echo esc_attr($entry->added_to_post_at); ?>"></span>
+                                    <?php } else { ?>
+                                        <span class="dashicons dashicons-no" style="color: red;" title="Not added to post yet"></span>
+                                    <?php } ?>
+                                </td>
                                 <td class="media-url column-media-url">
                                     <?php if (! empty($entry->media_url)) { ?>
                                         <img src="<?php echo esc_url($entry->media_url); ?>" alt="<?php echo esc_attr($entry->title); ?>" style="max-width: 100px; height: auto;">
                                     <?php } ?>
                                 </td>
                                 <td class="actions column-actions" style="display: flex; gap: 7px; flex-direction: column;">
-                                    <form method="post">
-                                        <input type="hidden" name="import_entry" value="<?php echo esc_attr($entry->id); ?>">
-                                        <?php submit_button('Import', 'primary', 'submit_import', false, ['style' => 'width: 100%;']); ?>
-                                    </form>
-
+                                    <button type="button" class="button button-primary" style="width: 100%;" onclick="importEntry(<?php echo esc_attr($entry->id); ?>)">Import</button>
                                     <a href="?page=sports-news-fetcher&preview_entry=<?php echo esc_attr($entry->id); ?>" class="button" style="width: 100%; text-align: center; display: inline-block; text-decoration: none;">Preview</a>
-
-                                    <form method="post" onsubmit="return confirm('Are you sure you want to delete this entry?');">
-                                        <input type="hidden" name="delete_entry" value="<?php echo esc_attr($entry->id); ?>">
-                                        <?php submit_button('Delete', 'delete', 'submit_delete', false, ['style' => 'width: 100%; background-color: #dc3545; color: white; border-color: #dc3545;']); ?>
-                                    </form>
+                                    <button type="button" class="button" style="width: 100%; background-color: #dc3545; color: white; border-color: #dc3545;" onclick="deleteEntry(<?php echo esc_attr($entry->id); ?>)">Delete</button>
                                 </td>
                             </tr>
                         <?php } ?>
@@ -337,7 +335,7 @@ function sports_news_fetcher_settings_page()
                         <th class="manage-column column-title">Title</th>
                         <th class="manage-column column-meta-title">Meta Title</th>
                         <th class="manage-column column-meta-description">Meta Description</th>
-                        <th class="manage-column column-added-to-post-at">Added to Post at</th>
+                        <th class="manage-column column-added-to-post-at">Status</th>
                         <th class="manage-column column-media-url">Image</th>
                         <th class="manage-column column-actions">Actions</th>
                     </tr>
@@ -414,6 +412,41 @@ function sports_news_fetcher_settings_page()
                 }
             });
         });
+
+        // Add these functions to your existing JavaScript
+        function importEntry(id) {
+            if (confirm('Are you sure you want to import this entry?')) {
+                var form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '';
+
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'import_entry';
+                input.value = id;
+
+                form.appendChild(input);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
+        function deleteEntry(id) {
+            if (confirm('Are you sure you want to delete this entry?')) {
+                var form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '';
+
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'delete_entry';
+                input.value = id;
+
+                form.appendChild(input);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
     </script>
 <?php
 
