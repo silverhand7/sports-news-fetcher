@@ -283,7 +283,9 @@ function sports_news_fetcher_settings_page()
             <table class="wp-list-table widefat fixed striped posts" style="overflow: hidden;">
                 <thead>
                     <tr>
-                        <th class="manage-column column-cb check-column"><input type="checkbox" id="cb-select-all"></th>
+                        <th class="manage-column column-cb" style="width: 25px; padding: 2px;">
+                            <input type="checkbox" id="cb-select-all">
+                        </th>
                         <th class="manage-column column-title">Title</th>
                         <th class="manage-column column-meta-title">Meta Title</th>
                         <th class="manage-column column-meta-description">Meta Description</th>
@@ -331,7 +333,7 @@ function sports_news_fetcher_settings_page()
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th class="manage-column column-cb check-column"><input type="checkbox" id="cb-select-all-bottom"></th>
+                        <th class="manage-column column-cb" style="width: 25px; padding: 2px;"><input type="checkbox" id="cb-select-all-bottom"></th>
                         <th class="manage-column column-title">Title</th>
                         <th class="manage-column column-meta-title">Meta Title</th>
                         <th class="manage-column column-meta-description">Meta Description</th>
