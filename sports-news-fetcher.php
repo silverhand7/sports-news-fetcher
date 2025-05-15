@@ -343,14 +343,43 @@ function sports_news_fetcher_settings_page()
             </table>
         </form>
 
+        <style>
+            .tablenav-pages a,
+            .tablenav-pages span {
+                display: inline-block;
+                padding: 6px 12px;
+                margin: 0 2px;
+                border: 1px solid #ccd0d4;
+                background-color: #f6f7f7;
+                color: #0073aa;
+                text-decoration: none;
+                border-radius: 3px;
+                font-size: 13px;
+                line-height: 1.5;
+            }
+
+            .tablenav-pages .current {
+                background-color: #0073aa;
+                color: #fff;
+                font-weight: bold;
+                border-color: #0073aa;
+            }
+
+            .tablenav-pages a:hover {
+                background-color: #e2e4e7;
+                color: #005177;
+                border-color: #999;
+            }
+        </style>
+
         <div class="tablenav bottom">
             <div class="tablenav-pages">
                 <?php
                     $pagination_args = [
                         'base' => add_query_arg('paged', '%#%'),
                         'format' => '',
-                        'prev_text' => __('&laquo; Previous'),
-                        'next_text' => __('Next &raquo;'),
+                        'prev_text' => __('&laquo;'),
+                        'next_text' => __('&raquo;'),
                         'total' => $total_pages,
                         'current' => $paged,
                     ];
