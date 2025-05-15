@@ -33,6 +33,12 @@ spl_autoload_register(function ($class) {
     }
 });
 
+// Add this new code right after the autoloader and before the init function
+$plugin = new SportsNewsFetcher\Plugin();
+register_activation_hook(__FILE__, [$plugin, 'activate']);
+register_deactivation_hook(__FILE__, [$plugin, 'deactivate']);
+
+
 // Initialize the plugin
 function sports_news_fetcher_init() {
     $plugin = new SportsNewsFetcher\Plugin();

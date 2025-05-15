@@ -78,6 +78,32 @@ class API {
             ));
 
             if (!$existing_ai_post) {
+                // Simplify categories data to only include necessary fields
+                $simplified_categories = [];
+                if (!empty($item['wp_categories_internal_links'])) {
+                    foreach ($item['wp_categories_internal_links'] as $category) {
+                        $simplified_categories[] = [
+                            'category_url' => $category['category_url'] ?? null,
+                            'tag_url' => $category['tag_url'] ?? null,
+                            'name' => $category['name'] ?? null,
+                            'slug' => $category['slug'] ?? null
+                        ];
+                    }
+                }
+
+                // Simplify tags data to only include necessary fields
+                $simplified_tags = [];
+                if (!empty($item['wp_tags_internal_links'])) {
+                    foreach ($item['wp_tags_internal_links'] as $tag) {
+                        $simplified_tags[] = [
+                            'category_url' => $tag['category_url'] ?? null,
+                            'tag_url' => $tag['tag_url'] ?? null,
+                            'name' => $tag['name'] ?? null,
+                            'slug' => $tag['slug'] ?? null
+                        ];
+                    }
+                }
+
                 $wpdb->insert(
                     $table_name,
                     [
@@ -86,8 +112,8 @@ class API {
                         'meta_title' => sanitize_text_field($item['meta_title']),
                         'meta_description' => sanitize_text_field($item['meta_description']),
                         'media_url' => !empty($item['source_media_url']) ? esc_url_raw($item['source_media_url']) : null,
-                        'categories_data' => !empty($item['wp_categories_internal_links']) ? json_encode($item['wp_categories_internal_links']) : null,
-                        'tags_data' => !empty($item['wp_tags_internal_links']) ? json_encode($item['wp_tags_internal_links']) : null,
+                        'categories_data' => !empty($simplified_categories) ? json_encode($simplified_categories) : null,
+                        'tags_data' => !empty($simplified_tags) ? json_encode($simplified_tags) : null,
                     ],
                     ['%s', '%s', '%s', '%s', '%s', '%s', '%s']
                 );

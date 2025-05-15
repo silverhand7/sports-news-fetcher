@@ -1,4 +1,5 @@
 <?php
+
 namespace SportsNewsFetcher;
 
 class Admin {

@@ -11,10 +11,6 @@ class Plugin {
     }
 
     public function init() {
-        // Register activation and deactivation hooks
-        register_activation_hook(SPORTS_NEWS_FETCHER_PLUGIN_DIR . 'sports-news-fetcher.php', [$this, 'activate']);
-        register_deactivation_hook(SPORTS_NEWS_FETCHER_PLUGIN_DIR . 'sports-news-fetcher.php', [$this, 'deactivate']);
-
         // Initialize components
         $this->admin->init();
         $this->api->init();
