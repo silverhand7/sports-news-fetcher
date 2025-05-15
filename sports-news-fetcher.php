@@ -1,15 +1,15 @@
 <?php
 /**
  * Plugin Name: Sports News Fetcher
- * Description: Fetches data from an external API and saves it into wp_posts daily.
- * Version: 1.5.0
- * Author: Refo
+ * Description: Fetch and import sports news from an AI Sports News API into WordPress.
+ * Version: 1.7.0
+ * Author: Refo J.
  */
+
 if (! defined('ABSPATH')) {
-    exit; // Exit if accessed directly.
+    exit;
 }
 
-// Activation hook to schedule the cron event.
 function sports_news_fetcher_activation()
 {
     global $wpdb;
@@ -289,7 +289,7 @@ function sports_news_fetcher_settings_page()
                         <th class="manage-column column-meta-description">Meta Description</th>
                         <th class="manage-column column-added-to-post-at" style="width: 80px;">Has Post</th>
                         <th class="manage-column column-media-url">Image</th>
-                        <th class="manage-column column-actions">Actions</th>
+                        <th class="manage-column column-actions" style="width: 100px;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -317,9 +317,9 @@ function sports_news_fetcher_settings_page()
                                     <?php } ?>
                                 </td>
                                 <td class="actions column-actions" style="display: flex; gap: 7px; flex-direction: column;">
-                                    <button type="button" class="button button-primary" style="width: 100%;" onclick="importEntry(<?php echo esc_attr($entry->id); ?>)">Import</button>
+                                    <button type="button" class="button button-primary" style="width: 100%;" onclick="importEntry(<?php echo esc_attr($entry->id); ?>, '<?php echo esc_js($entry->title); ?>')">Import</button>
                                     <a href="?page=sports-news-fetcher&preview_entry=<?php echo esc_attr($entry->id); ?>" class="button" style="width: 100%; text-align: center; display: inline-block; text-decoration: none;">Preview</a>
-                                    <button type="button" class="button" style="width: 100%; background-color: #dc3545; color: white; border-color: #dc3545;" onclick="deleteEntry(<?php echo esc_attr($entry->id); ?>)">Delete</button>
+                                    <button type="button" class="button" style="width: 100%; background-color: #dc3545; color: white; border-color: #dc3545;" onclick="deleteEntry(<?php echo esc_attr($entry->id); ?>, '<?php echo esc_js($entry->title); ?>')">Delete</button>
                                 </td>
                             </tr>
                         <?php } ?>
@@ -414,8 +414,8 @@ function sports_news_fetcher_settings_page()
         });
 
         // Add these functions to your existing JavaScript
-        function importEntry(id) {
-            if (confirm('Are you sure you want to import this entry?')) {
+        function importEntry(id, title) {
+            if (confirm(title + ' - Are you sure you want to import this entry?')) {
                 var form = document.createElement('form');
                 form.method = 'POST';
                 form.action = '';
@@ -431,8 +431,8 @@ function sports_news_fetcher_settings_page()
             }
         }
 
-        function deleteEntry(id) {
-            if (confirm('Are you sure you want to delete this entry?')) {
+        function deleteEntry(id, title) {
+            if (confirm(title + ' - Are you sure you want to delete this entry?')) {
                 var form = document.createElement('form');
                 form.method = 'POST';
                 form.action = '';
