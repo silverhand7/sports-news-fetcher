@@ -25,8 +25,12 @@ class Admin {
 
     public function register_settings() {
         register_setting('sports_news_fetcher_settings_group', 'sports_news_fetcher_api_key');
-        add_settings_section('sports_news_fetcher_section', 'API Settings', null, 'sports_news_fetcher_settings_page');
+        add_settings_section('sports_news_fetcher_section', 'API Settings', [$this, 'render_section_description'], 'sports_news_fetcher_settings_page');
         add_settings_field('sports_news_fetcher_api_key', 'API Key', [$this, 'render_api_key_field'], 'sports_news_fetcher_settings_page', 'sports_news_fetcher_section');
+    }
+
+    public function render_section_description() {
+        echo '<p>Enter your API key to connect to the sports news service.</p>';
     }
 
     public function enqueue_scripts($hook) {
