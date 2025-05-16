@@ -22,7 +22,7 @@ class Database {
             title TEXT NOT NULL,
             content LONGTEXT NOT NULL,
             meta_title varchar(255) NULL,
-            meta_description varchar(255) NULL,
+            meta_description TEXT NULL,
             media_url TEXT NULL,
             categories_data LONGTEXT NULL,
             tags_data LONGTEXT NULL,
@@ -34,6 +34,8 @@ class Database {
         dbDelta($sql);
 
         $this->check_and_add_columns();
+
+        $this->update_meta_description_column_type();
     }
 
     private function check_and_add_columns() {
@@ -48,6 +50,20 @@ class Database {
                 $type = $column === 'media_url' ? 'TEXT' : 'LONGTEXT';
                 $wpdb->query("ALTER TABLE {$this->table_name} ADD {$column} {$type} NULL");
             }
+        }
+    }
+
+    public function update_meta_description_column_type() {
+        global $wpdb;
+
+        $column_info = $wpdb->get_row(
+            "SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_NAME = '{$this->table_name}'
+            AND COLUMN_NAME = 'meta_description'"
+        );
+
+        if ($column_info && strtolower($column_info->DATA_TYPE) === 'varchar') {
+            $wpdb->query("ALTER TABLE {$this->table_name} MODIFY meta_description TEXT NULL");
         }
     }
 }
