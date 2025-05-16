@@ -141,7 +141,7 @@ class API {
                     'title' => $title,
                     'content' => $item['content'],
                     'meta_title' => sanitize_text_field($item['meta_title']),
-                    'meta_description' => substr(sanitize_text_field($item['meta_description']), 0, 255),
+                    'meta_description' => sanitize_text_field($item['meta_description']),
                     'media_url' => !empty($item['source_media_url']) ? esc_url_raw($item['source_media_url']) : null,
                     'categories_data' => !empty($simplified_categories) ? json_encode($simplified_categories) : null,
                     'tags_data' => !empty($simplified_tags) ? json_encode($simplified_tags) : null,
