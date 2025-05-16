@@ -258,10 +258,14 @@ class Admin {
             ['%s'],
             ['%d']
         );
-
         // Add meta_description to Yoast SEO meta description
         if (!empty($entry->meta_description)) {
             update_post_meta($post_id, '_yoast_wpseo_metadesc', $entry->meta_description);
+        }
+
+        // Add meta_title to Yoast SEO title
+        if (!empty($entry->meta_title)) {
+            update_post_meta($post_id, '_yoast_wpseo_title', $entry->meta_title);
         }
 
         // Handle featured image
