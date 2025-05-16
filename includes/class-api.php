@@ -71,13 +71,30 @@ class API {
         global $wpdb;
         $table_name = $wpdb->prefix . 'sports_news';
 
+        // Create a log file to track the data
+        $log_file = SPORTS_NEWS_FETCHER_PLUGIN_DIR . 'logs/api_data_' . date('Y-m-d_H-i-s') . '.log';
+
+        // Make sure the logs directory exists
+        if (!file_exists(SPORTS_NEWS_FETCHER_PLUGIN_DIR . 'logs')) {
+            mkdir(SPORTS_NEWS_FETCHER_PLUGIN_DIR . 'logs', 0755, true);
+        }
+
+        // Log the entire data array for debugging
+        file_put_contents($log_file, "=== FULL DATA ARRAY ===\n" . print_r($data, true) . "\n\n", FILE_APPEND);
+
         foreach ($data as $item) {
+            // Log each individual item
+            file_put_contents($log_file, "=== PROCESSING ITEM ===\n" . print_r($item, true) . "\n\n", FILE_APPEND);
+
             $existing_ai_post = $wpdb->get_row($wpdb->prepare(
                 "SELECT * FROM {$table_name} WHERE title = %s",
                 sanitize_text_field($item['title'])
             ));
 
             if (!$existing_ai_post) {
+                // Log that we're inserting a new item
+                file_put_contents($log_file, "Inserting new item with title: " . sanitize_text_field($item['title']) . "\n\n", FILE_APPEND);
+
                 // Simplify categories data to only include necessary fields
                 $simplified_categories = [];
                 if (!empty($item['wp_categories_internal_links'])) {
@@ -106,21 +123,49 @@ class API {
                     }
                 }
 
-                $wpdb->insert(
+                // Prepare the data for insertion
+                $insert_data = [
+                    'title' => sanitize_text_field($item['title']),
+                    'content' => $item['content'],
+                    'meta_title' => sanitize_text_field($item['meta_title']),
+                    'meta_description' => substr(sanitize_text_field($item['meta_description']), 0, 255),
+                    'media_url' => !empty($item['source_media_url']) ? esc_url_raw($item['source_media_url']) : null,
+                    'categories_data' => !empty($simplified_categories) ? json_encode($simplified_categories) : null,
+                    'tags_data' => !empty($simplified_tags) ? json_encode($simplified_tags) : null,
+                ];
+
+                // Log the data being inserted
+                file_put_contents($log_file, "Attempting to insert data:\n" . print_r($insert_data, true) . "\n\n", FILE_APPEND);
+
+                // Check if the table exists
+                $table_exists = $wpdb->get_var("SHOW TABLES LIKE '{$table_name}'");
+                if (!$table_exists) {
+                    file_put_contents($log_file, "ERROR: Table {$table_name} does not exist!\n\n", FILE_APPEND);
+                    continue;
+                }
+
+                // Attempt the insert
+                $result = $wpdb->insert(
                     $table_name,
-                    [
-                        'title' => sanitize_text_field($item['title']),
-                        'content' => $item['content'],
-                        'meta_title' => sanitize_text_field($item['meta_title']),
-                        'meta_description' => sanitize_text_field($item['meta_description']),
-                        'media_url' => !empty($item['source_media_url']) ? esc_url_raw($item['source_media_url']) : null,
-                        'categories_data' => !empty($simplified_categories) ? json_encode($simplified_categories) : null,
-                        'tags_data' => !empty($simplified_tags) ? json_encode($simplified_tags) : null,
-                    ],
+                    $insert_data,
                     ['%s', '%s', '%s', '%s', '%s', '%s', '%s']
                 );
+
+                if ($result === false) {
+                    // Log the database error
+                    file_put_contents($log_file, "Database insert failed. Error: " . $wpdb->last_error . "\n\n", FILE_APPEND);
+                } else {
+                    // Log the database insert result
+                    file_put_contents($log_file, "Database insert completed. Last insert ID: " . $wpdb->insert_id . "\n\n", FILE_APPEND);
+                }
+            } else {
+                // Log that we're skipping an existing item
+                file_put_contents($log_file, "Skipping existing item with title: " . sanitize_text_field($item['title']) . "\n\n", FILE_APPEND);
             }
         }
+
+        // Log completion
+        file_put_contents($log_file, "=== PROCESSING COMPLETED ===\n", FILE_APPEND);
     }
 
     public function handle_manual_fetch() {
