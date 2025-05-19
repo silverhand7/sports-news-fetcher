@@ -34,17 +34,9 @@ $total_pages = ceil($total_entries / $per_page);
 ?>
 
 <div class="wrap">
-    <h1>Sports News Settings</h1>
-
-    <!-- Settings Form -->
-    <form method="post" action="options.php">
-        <?php
-        settings_fields('sports_news_fetcher_settings_group');
-        do_settings_sections('sports_news_fetcher_settings_page');
-        submit_button();
-        ?>
-    </form>
-
+    <h1>Dashboard Sports News</h1>
+    <hr class="wp-header-end">
+    <p>Fetch data from the API and save it to the database.</p>
     <!-- Manual Fetch Form -->
     <form method="post" action="">
         <?php
@@ -88,8 +80,7 @@ $total_pages = ceil($total_entries / $per_page);
         </p>
     </form>
 
-    <!-- Bulk Actions Form -->
-    <?php require_once SPORTS_NEWS_FETCHER_PLUGIN_DIR . 'admin/views/bulk-actions.php'; ?>
+    <?php require_once SPORTS_NEWS_FETCHER_PLUGIN_DIR . 'admin/views/sports-news-table.php'; ?>
 
     <!-- Pagination -->
     <?php require_once SPORTS_NEWS_FETCHER_PLUGIN_DIR . 'admin/views/pagination.php'; ?>

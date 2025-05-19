@@ -11,7 +11,7 @@ class Admin {
         add_action('admin_init', [$this, 'handle_actions']);
     }
 
-        public function add_menu_page() {
+    public function add_menu_page() {
         add_menu_page(
             'Sports News',
             'Sports News',
@@ -20,6 +20,15 @@ class Admin {
             [$this, 'render_admin_page'],
             file_get_contents(SPORTS_NEWS_FETCHER_PLUGIN_DIR . 'admin/icon/ball-base64.txt'),
             30
+        );
+
+        add_submenu_page(
+            'sports-news-fetcher',
+            'Settings',
+            'Settings',
+            'manage_options',
+            'sports-news-fetcher-settings',
+            [$this, 'render_settings_page']
         );
     }
 
@@ -66,6 +75,10 @@ class Admin {
 
     public function render_admin_page() {
         require_once SPORTS_NEWS_FETCHER_PLUGIN_DIR . 'admin/views/admin-page.php';
+    }
+
+    public function render_settings_page() {
+        require_once SPORTS_NEWS_FETCHER_PLUGIN_DIR . 'admin/views/settings-page.php';
     }
 
     public function handle_preview() {
