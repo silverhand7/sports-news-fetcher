@@ -257,9 +257,9 @@ class Admin {
         // Update added_to_post_at timestamp
         $wpdb->update(
             $table_name,
-            ['added_to_post_at' => current_time('mysql')],
+            ['added_to_post_at' => current_time('mysql'), 'post_id' => $post_id],
             ['id' => $entry->id],
-            ['%s'],
+            ['%s', '%d'],
             ['%d']
         );
         // Add meta_description to Yoast SEO meta description

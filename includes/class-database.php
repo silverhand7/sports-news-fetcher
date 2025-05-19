@@ -36,6 +36,8 @@ class Database {
         $this->check_and_add_columns();
 
         $this->update_meta_description_column_type();
+
+        $this->add_post_id_column();
     }
 
     private function check_and_add_columns() {
@@ -53,7 +55,7 @@ class Database {
         }
     }
 
-    public function update_meta_description_column_type() {
+    private function update_meta_description_column_type() {
         global $wpdb;
 
         $column_info = $wpdb->get_row(
@@ -64,6 +66,19 @@ class Database {
 
         if ($column_info && strtolower($column_info->DATA_TYPE) === 'varchar') {
             $wpdb->query("ALTER TABLE {$this->table_name} MODIFY meta_description TEXT NULL");
+        }
+    }
+
+    private function add_post_id_column() {
+        global $wpdb;
+        $column_info = $wpdb->get_row(
+            "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_NAME = '{$this->table_name}'
+            AND COLUMN_NAME = 'post_id'"
+        );
+
+        if (empty($column_info)) {
+            $wpdb->query("ALTER TABLE {$this->table_name} ADD post_id BIGINT(20) UNSIGNED NULL");
         }
     }
 }

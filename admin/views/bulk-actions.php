@@ -64,8 +64,12 @@ $actions = [
                             <?php } ?>
                         </td>
                         <td class="actions column-actions" style="display: flex; gap: 7px; flex-direction: column; width: 100px;">
-                            <button type="button" class="button button-primary" onclick="importEntry(<?php echo esc_attr($entry->id); ?>, '<?php echo esc_js($entry->title); ?>')">Import</button>
-                            <a href="?page=sports-news-fetcher&preview_entry=<?php echo esc_attr($entry->id); ?>" class="button" style="text-align: center;">Preview</a>
+                            <?php if (empty($entry->post_id)) { ?>
+                                <button type="button" class="button button-primary" onclick="importEntry(<?php echo esc_attr($entry->id); ?>, '<?php echo esc_js($entry->title); ?>')">Import</button>
+                                <a href="?page=sports-news-fetcher&preview_entry=<?php echo esc_attr($entry->id); ?>" class="button" style="text-align: center;">Preview</a>
+                            <?php } else { ?>
+                                <a href="<?php echo admin_url('post.php?post=' . $entry->post_id . '&action=edit'); ?>" class="button button-primary" style="text-align: center;"> View Post</a>
+                            <?php } ?>
                             <button type="button" class="button delete" onclick="deleteEntry(<?php echo esc_attr($entry->id); ?>, '<?php echo esc_js($entry->title); ?>')">Delete</button>
                         </td>
                     </tr>
