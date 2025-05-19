@@ -11,14 +11,14 @@ class Admin {
         add_action('admin_init', [$this, 'handle_actions']);
     }
 
-    public function add_menu_page() {
+        public function add_menu_page() {
         add_menu_page(
             'Sports News',
             'Sports News',
             'manage_options',
             'sports-news-fetcher',
             [$this, 'render_admin_page'],
-            'dashicons-rss',
+            file_get_contents(SPORTS_NEWS_FETCHER_PLUGIN_DIR . 'admin/icon/ball-base64.txt'),
             30
         );
     }
