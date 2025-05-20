@@ -33,6 +33,12 @@ $post_tags_training_prompt = $wpdb->get_var("SELECT prompt FROM $table_name WHER
                     </td>
                 </tr>
                 <tr valign="top"></tr>
+                    <th scope="row">Limit</th>
+                    <td>
+                        <input type="number" name="limit" id="limit" class="regular-text" value="25">
+                    </td>
+                </tr>
+                <tr valign="top"></tr>
                     <th scope="row">Export Format</th>
                     <td>
                         <select name="export_format" id="export_format" class="regular-text">

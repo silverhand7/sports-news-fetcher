@@ -192,8 +192,9 @@ class Admin {
 
         if (isset($_POST['export_posts_for_post_tags_training'])) {
             $this->export_posts_for_post_tags_training(
-                $_POST['post_tags_training_prompt'],
-                $_POST['export_format']
+                sanitize_text_field($_POST['post_tags_training_prompt']),
+                intval(sanitize_text_field($_POST['limit'])),
+                sanitize_text_field($_POST['export_format'])
             );
             wp_redirect(admin_url('admin.php?page=sports-news-fetcher-export'));
             exit;
@@ -328,13 +329,14 @@ class Admin {
 
     private function export_posts_for_post_tags_training(
         $post_tags_training_prompt,
-        $export_format
+        $limit,
+        $export_format,
     ) {
         global $wpdb;
         $table_name = $wpdb->prefix . 'sports_news_training_prompts';
         $wpdb->update(
             $table_name,
-            ['prompt' => sanitize_text_field($post_tags_training_prompt)],
+            ['prompt' => $post_tags_training_prompt],
             ['type' => 'post_tags_training'],
             ['%s'],
             ['%s']
@@ -342,7 +344,7 @@ class Admin {
 
         $posts = get_posts([
             'post_type' => 'post',
-            'posts_per_page' => -1,
+            'posts_per_page' => $limit,
         ]);
 
         $data = [];
