@@ -30,6 +30,15 @@ class Admin {
             'sports-news-fetcher-settings',
             [$this, 'render_settings_page']
         );
+
+        add_submenu_page(
+            'sports-news-fetcher',
+            'Export',
+            'Export',
+            'manage_options',
+            'sports-news-fetcher-export',
+            [$this, 'render_export_page']
+        );
     }
 
     public function register_settings() {
@@ -79,6 +88,10 @@ class Admin {
 
     public function render_settings_page() {
         require_once SPORTS_NEWS_FETCHER_PLUGIN_DIR . 'admin/views/settings-page.php';
+    }
+
+    public function render_export_page() {
+        require_once SPORTS_NEWS_FETCHER_PLUGIN_DIR . 'admin/views/export-page.php';
     }
 
     public function handle_preview() {
