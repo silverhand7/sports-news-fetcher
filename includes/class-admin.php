@@ -189,6 +189,12 @@ class Admin {
                 });
             }
         }
+
+        if (isset($_POST['export_posts_for_post_tags_training'])) {
+            $this->export_posts_for_post_tags_training();
+            wp_redirect(admin_url('admin.php?page=sports-news-fetcher-export'));
+            exit;
+        }
     }
 
     private function import_entry($id) {
@@ -316,4 +322,54 @@ class Admin {
 
         return true;
     }
+
+    private function export_posts_for_post_tags_training() {
+        $posts = get_posts([
+            'post_type' => 'post',
+            'posts_per_page' => -1,
+        ]);
+
+        $data = [];
+
+        foreach ($posts as $post) {
+            $tags = get_the_tags($post->ID);
+            $tag_names = [];
+            if ($tags) {
+                foreach ($tags as $tag) {
+                    $tag_names[] = $tag->name;
+                }
+            }
+
+            $data[] = [
+                'post_id' => $post->ID,
+                'post_title' => $post->post_title,
+                'post_content' => strip_tags($post->post_content),
+                'post_tags' => implode(', ', $tag_names),
+            ];
+        }
+
+        // Set headers for CSV download
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="posts-export-' . date('Y-m-d') . '.csv"');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
+        // Create output stream
+        $output = fopen('php://output', 'w');
+
+        // Add UTF-8 BOM for proper Excel encoding
+        fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
+
+        // Write headers
+        fputcsv($output, array_keys($data[0]));
+
+        // Write data
+        foreach ($data as $row) {
+            fputcsv($output, $row);
+        }
+
+        fclose($output);
+        exit;
+    }
+
 }

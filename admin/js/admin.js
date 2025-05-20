@@ -15,10 +15,10 @@ jQuery(document).ready(function($) {
 
     // Submit form confirmation for bulk actions
     $('#bulk-action-form').on('submit', function(e) {
-        var action = $('#bulk-action-selector-top').val();
+        let action = $('#bulk-action-selector-top').val();
 
         if (action === 'delete') {
-            var checked = $('.check-item:checked').length;
+            let checked = $('.check-item:checked').length;
             if (checked === 0) {
                 alert('Please select at least one item to delete.');
                 e.preventDefault();
@@ -30,7 +30,7 @@ jQuery(document).ready(function($) {
                 return false;
             }
         } else if (action === 'import') {
-            var checked = $('.check-item:checked').length;
+            let checked = $('.check-item:checked').length;
             if (checked === 0) {
                 alert('Please select at least one item to import.');
                 e.preventDefault();
@@ -46,11 +46,11 @@ jQuery(document).ready(function($) {
 
 function importEntry(id, title) {
     if (confirm(title + ' - Are you sure you want to import this entry?')) {
-        var form = document.createElement('form');
+        let form = document.createElement('form');
         form.method = 'POST';
         form.action = '';
 
-        var input = document.createElement('input');
+        let input = document.createElement('input');
         input.type = 'hidden';
         input.name = 'import_entry';
         input.value = id;
@@ -63,11 +63,11 @@ function importEntry(id, title) {
 
 function deleteEntry(id, title) {
     if (confirm(title + ' - Are you sure you want to delete this entry?')) {
-        var form = document.createElement('form');
+        let form = document.createElement('form');
         form.method = 'POST';
         form.action = '';
 
-        var input = document.createElement('input');
+        let input = document.createElement('input');
         input.type = 'hidden';
         input.name = 'delete_entry';
         input.value = id;

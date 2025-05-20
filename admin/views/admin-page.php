@@ -35,7 +35,6 @@ $total_pages = ceil($total_entries / $per_page);
 
 <div class="wrap">
     <h1>Dashboard Sports News</h1>
-    <hr class="wp-header-end">
     <p>Fetch data from the API and save it to the database.</p>
     <!-- Manual Fetch Form -->
     <form method="post" action="">
