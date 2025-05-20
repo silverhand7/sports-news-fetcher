@@ -191,7 +191,10 @@ class Admin {
         }
 
         if (isset($_POST['export_posts_for_post_tags_training'])) {
-            $this->export_posts_for_post_tags_training();
+            $this->export_posts_for_post_tags_training(
+                $_POST['post_tags_training_prompt'],
+                $_POST['export_format']
+            );
             wp_redirect(admin_url('admin.php?page=sports-news-fetcher-export'));
             exit;
         }
@@ -323,7 +326,20 @@ class Admin {
         return true;
     }
 
-    private function export_posts_for_post_tags_training() {
+    private function export_posts_for_post_tags_training(
+        $post_tags_training_prompt,
+        $export_format
+    ) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'sports_news_training_prompts';
+        $wpdb->update(
+            $table_name,
+            ['prompt' => sanitize_text_field($post_tags_training_prompt)],
+            ['type' => 'post_tags_training'],
+            ['%s'],
+            ['%s']
+        );
+
         $posts = get_posts([
             'post_type' => 'post',
             'posts_per_page' => -1,
@@ -341,13 +357,19 @@ class Admin {
             }
 
             $data[] = [
-                'post_id' => $post->ID,
-                'post_title' => $post->post_title,
-                'post_content' => strip_tags($post->post_content),
-                'post_tags' => implode(', ', $tag_names),
+                'system_prompt' => $post_tags_training_prompt,
+                'user_prompt' => $post->post_content,
+                'assistant_response' => '[' . implode(', ', $tag_names) . ']',
             ];
         }
 
+        if ($export_format === 'csv') {
+            $this->export_csv($data);
+        }
+    }
+
+    private function export_csv(array $data)
+    {
         // Set headers for CSV download
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="posts-export-' . date('Y-m-d') . '.csv"');

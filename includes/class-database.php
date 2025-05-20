@@ -38,6 +38,8 @@ class Database {
         $this->update_meta_description_column_type();
 
         $this->add_post_id_column();
+
+        $this->create_training_prompts_table();
     }
 
     private function check_and_add_columns() {
@@ -81,4 +83,38 @@ class Database {
             $wpdb->query("ALTER TABLE {$this->table_name} ADD post_id BIGINT(20) UNSIGNED NULL");
         }
     }
+
+    private function create_training_prompts_table() {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'sports_news_training_prompts';
+
+        $charset_collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE IF NOT EXISTS {$table_name} (
+            id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            prompt TEXT NOT NULL,
+            type VARCHAR(255) NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) $charset_collate;";
+
+        dbDelta($sql);
+
+        $insert_prompts = [
+            [
+                'prompt' => 'Generate a post title for the following content:',
+                'type' => 'post_tags_training'
+            ],
+            [
+                'prompt' => 'Generate a post meta title and description for the following content:',
+                'type' => 'post_meta_title_and_description_training'
+            ],
+        ];
+
+        foreach ($insert_prompts as $prompt) {
+            if ($wpdb->get_var("SELECT COUNT(*) FROM {$table_name} WHERE type = '{$prompt['type']}'") == 0) {
+                $wpdb->insert($table_name, $prompt);
+            }
+        }
+    }
+
 }
