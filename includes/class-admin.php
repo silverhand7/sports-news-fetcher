@@ -361,7 +361,7 @@ class Admin {
             $data[] = [
                 'system_prompt' => $post_tags_training_prompt,
                 'user_prompt' => $post->post_content,
-                'assistant_response' => '[' . implode(', ', $tag_names) . ']',
+                'assistant_response' => '["' . implode('", "', $tag_names) . '"]',
             ];
         }
 
