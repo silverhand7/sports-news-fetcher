@@ -55,9 +55,9 @@ $post_tags_training_prompt = $wpdb->get_var("SELECT prompt FROM $table_name WHER
         </div>
     </form>
 
-    <hr style="margin: 20px 0;">
+    <!-- <hr style="margin: 20px 0;">
 
-    <!-- <form method="post" action="">
+    <form method="post" action="">
         <h2>Export Posts for Post Meta Title and Meta Description Training</h2>
         <input type="hidden" name="export_posts_for_post_meta_title_and_description_training" value="1">
         <select name="post_type">
