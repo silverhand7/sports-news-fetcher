@@ -367,7 +367,46 @@ class Admin {
 
         if ($export_format === 'csv') {
             $this->export_csv($data);
+        } elseif ($export_format === 'jsonl') {
+            $this->export_jsonl($data);
         }
+    }
+
+    private function export_jsonl(array $data)
+    {
+        // Set headers for JSONL download
+        header('Content-Type: application/jsonl');
+        header('Content-Disposition: attachment; filename="posts-export-' . date('Y-m-d') . '.jsonl"');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
+        // Create output stream
+        $output = fopen('php://output', 'w');
+
+        // Write each data entry as a JSON line
+        foreach ($data as $row) {
+            $jsonl_entry = [
+                'messages' => [
+                    [
+                        'role' => 'system',
+                        'content' => $row['system_prompt']
+                    ],
+                    [
+                        'role' => 'user',
+                        'content' => $row['user_prompt']
+                    ],
+                    [
+                        'role' => 'assistant',
+                        'content' => $row['assistant_response']
+                    ]
+                ]
+            ];
+
+            fwrite($output, json_encode($jsonl_entry) . "\n");
+        }
+
+        fclose($output);
+        exit;
     }
 
     private function export_csv(array $data)
