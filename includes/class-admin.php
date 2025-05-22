@@ -336,7 +336,7 @@ class Admin {
         $table_name = $wpdb->prefix . 'sports_news_training_prompts';
         $wpdb->update(
             $table_name,
-            ['prompt' => $post_tags_training_prompt],
+            ['prompt' => sanitize_text_field($post_tags_training_prompt)],
             ['type' => 'post_tags_training'],
             ['%s'],
             ['%s']
@@ -424,11 +424,17 @@ class Admin {
         fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
 
         // Write headers
-        fputcsv($output, array_keys($data[0]));
+        fputcsv($output, ['system_prompt', 'user_prompt', 'assistant_response']);
 
         // Write data
         foreach ($data as $row) {
-            fputcsv($output, $row);
+            // Ensure all fields are properly escaped and formatted
+            $csv_row = [
+                str_replace(["\r", "\n"], ' ', $row['system_prompt']),
+                str_replace(["\r", "\n"], ' ', $row['user_prompt']),
+                $row['assistant_response']
+            ];
+            fputcsv($output, $csv_row);
         }
 
         fclose($output);

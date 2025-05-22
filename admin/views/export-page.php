@@ -29,7 +29,7 @@ $post_tags_training_prompt = $wpdb->get_var("SELECT prompt FROM $table_name WHER
                             id="post_tags_training_prompt"
                             rows="10"
                             class="large-text code"
-                        ><?php echo esc_textarea($post_tags_training_prompt); ?></textarea>
+                        ><?php echo str_replace("\'", "'", $post_tags_training_prompt); ?></textarea>
                     </td>
                 </tr>
                 <tr valign="top"></tr>
