@@ -477,13 +477,8 @@ class Admin {
             $csv_row = [
                 str_replace(["\r", "\n"], ' ', $row['system_prompt']),
                 str_replace(["\r", "\n"], ' ', $row['user_prompt']),
-                $row['assistant_response']
+                str_replace(["\r", "\n"], ' ', $row['assistant_response'])
             ];
-
-            // Properly escape double quotes by doubling them
-            $csv_row = array_map(function($field) {
-                return str_replace('"', '""', $field);
-            }, $csv_row);
 
             fputcsv($output, $csv_row);
         }
