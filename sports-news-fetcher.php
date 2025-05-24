@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Sports News Fetcher
  * Description: Fetch and import sports news from an AI Sports News API into WordPress.
- * Version: 1.7.0
+ * Version: 2.0.0
  * Author: Refo J.
  */
 
