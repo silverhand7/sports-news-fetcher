@@ -74,7 +74,7 @@ $meta_title_and_description_training_prompt = $wpdb->get_var("SELECT prompt FROM
                             id="meta_title_and_description_training_prompt"
                             rows="10"
                             class="large-text code"
-                        ><?php echo str_replace("\'", "'", $meta_title_and_description_training_prompt); ?></textarea>
+                        ><?php echo str_replace("\\", "", $meta_title_and_description_training_prompt); ?></textarea>
                     </td>
                 </tr>
                 <tr valign="top"></tr>
