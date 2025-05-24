@@ -33,7 +33,7 @@ class Admin {
 
         add_submenu_page(
             'sports-news-fetcher',
-            'Export',
+            'Export Posts for AI Training',
             'Export',
             'manage_options',
             'sports-news-fetcher-export',
@@ -198,6 +198,14 @@ class Admin {
             );
             wp_redirect(admin_url('admin.php?page=sports-news-fetcher-export'));
             exit;
+        }
+
+        if (isset($_POST['export_posts_for_meta_title_and_description_training'])) {
+            $this->export_posts_for_meta_title_and_description_training(
+                sanitize_text_field($_POST['meta_title_and_description_training_prompt']),
+                intval(sanitize_text_field($_POST['limit'])),
+                sanitize_text_field($_POST['export_format'])
+            );
         }
     }
 
@@ -366,17 +374,52 @@ class Admin {
         }
 
         if ($export_format === 'csv') {
-            $this->export_csv($data);
+            $this->export_csv($data, 'posts-export-post-tags-' . date('Y-m-d'));
         } elseif ($export_format === 'jsonl') {
-            $this->export_jsonl($data);
+            $this->export_jsonl($data, 'posts-export-post-tags-' . date('Y-m-d'));
         }
     }
 
-    private function export_jsonl(array $data)
+    private function export_posts_for_meta_title_and_description_training(
+        $meta_title_and_description_training_prompt,
+        $limit,
+        $export_format,
+    ) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'sports_news_training_prompts';
+        $wpdb->update(
+            $table_name,
+            ['prompt' => sanitize_text_field($meta_title_and_description_training_prompt)],
+            ['type' => 'meta_title_and_description_training'],
+        );
+
+        $posts = get_posts([
+            'post_type' => 'post',
+            'posts_per_page' => $limit,
+        ]);
+
+        $data = [];
+
+        foreach ($posts as $post) {
+            $data[] = [
+                'system_prompt' => $meta_title_and_description_training_prompt,
+                'user_prompt' => $post->post_content,
+                'assistant_response' => '{"meta_title": "' . get_post_meta($post->ID, '_yoast_wpseo_title', true) . '", "meta_description": "' . get_post_meta($post->ID, '_yoast_wpseo_metadesc', true) . '"}',
+            ];
+        }
+
+        if ($export_format === 'csv') {
+            $this->export_csv($data, 'posts-export-meta-title-and-description-' . date('Y-m-d'));
+        } elseif ($export_format === 'jsonl') {
+            $this->export_jsonl($data, 'posts-export-meta-title-and-description-' . date('Y-m-d'));
+        }
+    }
+
+    private function export_jsonl(array $data, string $filename)
     {
         // Set headers for JSONL download
         header('Content-Type: application/jsonl');
-        header('Content-Disposition: attachment; filename="posts-export-' . date('Y-m-d') . '.jsonl"');
+        header('Content-Disposition: attachment; filename="' . $filename . '.jsonl"');
         header('Pragma: no-cache');
         header('Expires: 0');
 
@@ -409,11 +452,11 @@ class Admin {
         exit;
     }
 
-    private function export_csv(array $data)
+    private function export_csv(array $data, string $filename)
     {
         // Set headers for CSV download
         header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="posts-export-' . date('Y-m-d') . '.csv"');
+        header('Content-Disposition: attachment; filename="' . $filename . '.csv"');
         header('Pragma: no-cache');
         header('Expires: 0');
 
