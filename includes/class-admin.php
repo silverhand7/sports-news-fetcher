@@ -390,7 +390,9 @@ class Admin {
         $wpdb->update(
             $table_name,
             ['prompt' => sanitize_text_field($meta_title_and_description_training_prompt)],
-            ['type' => 'meta_title_and_description_training'],
+            ['type' => 'post_meta_title_and_description_training'],
+            ['%s'],
+            ['%s']
         );
 
         $posts = get_posts([
@@ -477,6 +479,12 @@ class Admin {
                 str_replace(["\r", "\n"], ' ', $row['user_prompt']),
                 $row['assistant_response']
             ];
+
+            // Properly escape double quotes by doubling them
+            $csv_row = array_map(function($field) {
+                return str_replace('"', '""', $field);
+            }, $csv_row);
+
             fputcsv($output, $csv_row);
         }
 

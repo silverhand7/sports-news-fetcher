@@ -60,7 +60,7 @@ $meta_title_and_description_training_prompt = $wpdb->get_var("SELECT prompt FROM
 
     <form method="post" action="<?php echo admin_url('admin.php'); ?>" class="export-form">
         <input type="hidden" name="page" value="sports-news-fetcher-export">
-        <input type="hidden" name="export_posts_for_post_tags_training" value="1">
+        <input type="hidden" name="export_posts_for_meta_title_and_description_training" value="1">
 
         <div class="form-section">
             <h2>Export Posts for Meta Title and Description Training</h2>
