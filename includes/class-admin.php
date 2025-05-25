@@ -428,26 +428,25 @@ class Admin {
         // Create output stream
         $output = fopen('php://output', 'w');
 
-        // Write each data entry as a JSON line
         foreach ($data as $row) {
             $jsonl_entry = [
                 'messages' => [
                     [
                         'role' => 'system',
-                        'content' => $row['system_prompt']
+                        'content' => str_replace('\\', '', $row['system_prompt'])
                     ],
                     [
                         'role' => 'user',
-                        'content' => $row['user_prompt']
+                        'content' => str_replace('\\', '', $row['user_prompt'])
                     ],
                     [
                         'role' => 'assistant',
-                        'content' => $row['assistant_response']
+                        'content' => str_replace('\\', '', $row['assistant_response'])
                     ]
                 ]
             ];
 
-            fwrite($output, json_encode($jsonl_entry) . "\n");
+            fwrite($output, json_encode($jsonl_entry, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n");
         }
 
         fclose($output);
